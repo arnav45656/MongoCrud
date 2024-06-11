@@ -1,0 +1,29 @@
+version: '3.8'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    ports:
+      - '8000:8000'
+    restart: on-failure
+    platform: linux/amd64
+    depends_on:
+      - mongodb
+    networks:
+      - "mynet"
+  mongodb:
+    image: mongo:6-jammy
+    ports:
+      - '27017:27017'
+    volumes:
+      - dbdata6:/data/db
+    networks:
+      - "mynet"
+
+volumes:
+  dbdata6:
+
+networks:
+  mynet:
+    driver: "bridge"
