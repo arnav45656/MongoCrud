@@ -1,29 +1,20 @@
-# 
+# Builder Stage
+FROM golang:latest AS builder
 
-# WORKDIR /app
+WORKDIR /go/src/app
+ADD . .
 
-# COPY . .
+RUN go get -d -v ./... && \
+    CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /go/bin/app/main ./main.go
 
-# RUN go mod tidy
+# Runtime Stage
+FROM alpine:3.1
 
-# RUN go build -o main .
-
-# EXPOSE 8000
-
-# CMD ["./main"]
-
-FROM golang:latest AS Builder
-
-
-WORKDIR /app
-ADD . /app/
-RUN go get -d -v ./... # See Below for details
-
-RUN go build -o /application/run ./main.go
-
-FROM alpine:3.14
-RUN apk add ca-certificates
 WORKDIR /application
-COPY --from=builder ./app /application/run
+COPY --from=builder /go/bin/app/main /application/run
+RUN chmod +x /application/run
+
 EXPOSE 8000
-ENTRYPOINT /application/run
+CMD ["/application/run"]
+
+LABEL Name=ring-master-service-go Version=0.0.1

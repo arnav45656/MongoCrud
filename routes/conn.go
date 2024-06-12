@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -11,7 +12,13 @@ import (
 )
 
 func DBinstance() *mongo.Client {
-	MongoDB := "mongodb://localhost:27017/customer"
+	//docker changes
+	mongoHost := os.Getenv("MONGO_HOST")
+	mongoPort := os.Getenv("MONGO_PORT")
+
+	MongoDB := fmt.Sprintf("mongodb://%s:%s", mongoHost, mongoPort)
+
+	// MongoDB := "mongodb://127.0.0.1:27017/customer"
 
 	client, err := mongo.NewClient(options.Client().ApplyURI(MongoDB))
 	if err != nil {
